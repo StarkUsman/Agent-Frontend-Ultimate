@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import {
   ReactFlow,
   Background,
@@ -17,96 +17,82 @@ import {
 import '@xyflow/react/dist/style.css'
 import { nodeTypes } from './nodes'
 
-// ── Initial canvas state — gives the user something to see right away ──────
-const initialNodes: Node[] = [
+// ── Fallback when no saved flow exists for this agent ──────────────────────
+const DEFAULT_NODES: Node[] = [
   {
     id: '1',
     type: 'initial',
-    position: { x: 240, y: 60 },
+    position: { x: 240, y: 200 },
     data: { label: 'Initial' },
-  },
-  {
-    id: '2',
-    type: 'step',
-    position: { x: 200, y: 220 },
-    data: {
-      label: 'Greet caller',
-      instructions: 'Welcome the caller and ask how you can help them today.',
-    },
-  },
-  {
-    id: '3',
-    type: 'end',
-    position: { x: 240, y: 420 },
-    data: { label: 'End' },
   },
 ]
 
-const initialEdges: Edge[] = [
-  { id: 'e1-2', source: '1', target: '2', type: 'smoothstep' },
-  { id: 'e2-3', source: '2', target: '3', type: 'smoothstep' },
-]
+const DEFAULT_EDGES: Edge[] = []
 
 // ── Props ──────────────────────────────────────────────────────────────────
 export interface FlowCanvasProps {
-  onNodeSelect?: (node: Node | null) => void
+  initialNodes?: Node[]
+  initialEdges?: Edge[]
+  onNodeSelect?:  (node: Node | null) => void
+  onFlowChange?:  (nodes: Node[], edges: Edge[]) => void
 }
 
 // ── Component ──────────────────────────────────────────────────────────────
-// NOTE: This component MUST be rendered inside a <ReactFlowProvider>
-// so that useReactFlow() can access the flow context.
-const FlowCanvas = ({ onNodeSelect }: FlowCanvasProps) => {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
+const FlowCanvas = ({
+  initialNodes: propNodes,
+  initialEdges: propEdges,
+  onNodeSelect,
+  onFlowChange,
+}: FlowCanvasProps) => {
+  const [nodes, setNodes, onNodesChange] = useNodesState(propNodes ?? DEFAULT_NODES)
+  const [edges, setEdges, onEdgesChange] = useEdgesState(propEdges ?? DEFAULT_EDGES)
   const { screenToFlowPosition } = useReactFlow()
-  const idRef = useRef(initialNodes.length)
+  const idRef        = useRef((propNodes ?? DEFAULT_NODES).length)
+  const isFirstMount = useRef(true)
 
-  // ── Connect two handles with a smoothstep edge ─────────────────────────
+  // Notify parent of changes for auto-save — skip the very first render
+  // so loading a flow doesn't immediately trigger a redundant save
+  useEffect(() => {
+    if (isFirstMount.current) { isFirstMount.current = false; return }
+    onFlowChange?.(nodes, edges)
+  }, [nodes, edges]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const onConnect = useCallback(
     (connection: Connection) =>
-      setEdges((eds) =>
-        addEdge({ ...connection, type: 'smoothstep' }, eds)
-      ),
+      setEdges((eds) => addEdge({ ...connection, type: 'smoothstep' }, eds)),
     [setEdges]
   )
 
-  // ── Tell the inspector which node is selected ──────────────────────────
   const onSelectionChange = useCallback(
-    ({ nodes: selected }: OnSelectionChangeParams) => {
-      onNodeSelect?.(selected.length === 1 ? selected[0] : null)
-    },
+    ({ nodes: selected }: OnSelectionChangeParams) =>
+      onNodeSelect?.(selected.length === 1 ? selected[0] : null),
     [onNodeSelect]
   )
 
-  // ── Allow items to be dragged over the canvas ──────────────────────────
   const onDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.dataTransfer.dropEffect = 'move'
   }, [])
 
-  // ── Drop a palette node onto the canvas ────────────────────────────────
   const onDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault()
       const type = e.dataTransfer.getData('application/reactflow/type')
       if (!type) return
 
-      // Convert screen coords to flow-space coords
       const position = screenToFlowPosition({ x: e.clientX, y: e.clientY })
       idRef.current += 1
 
       const label = type.charAt(0).toUpperCase() + type.slice(1)
-      const newNode: Node = {
-        id: `node-${idRef.current}`,
-        type,
-        position,
-        data: {
-          label,
-          ...(type === 'step' ? { instructions: '' } : {}),
+      setNodes((nds) => [
+        ...nds,
+        {
+          id: `node-${idRef.current}`,
+          type,
+          position,
+          data: { label, ...(type === 'step' ? { instructions: '' } : {}) },
         },
-      }
-
-      setNodes((nds) => [...nds, newNode])
+      ])
     },
     [screenToFlowPosition, setNodes]
   )
@@ -128,24 +114,12 @@ const FlowCanvas = ({ onNodeSelect }: FlowCanvasProps) => {
         proOptions={{ hideAttribution: true }}
         defaultEdgeOptions={{ type: 'smoothstep' }}
       >
-        {/* Dotted grid background */}
-        <Background
-          variant={BackgroundVariant.Dots}
-          gap={24}
-          size={1.5}
-          color="#d1d5db"
-        />
-
-        {/* Zoom / fit-view controls — bottom left */}
+        <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} color="#d1d5db" />
         <Controls showInteractive={false} />
-
-        {/* Mini-map — bottom right */}
         <MiniMap
-          nodeColor={(node) => {
-            if (node.type === 'initial') return '#6366f1'
-            if (node.type === 'end')     return '#ef4444'
-            return '#94a3b8'
-          }}
+          nodeColor={(n) =>
+            n.type === 'initial' ? '#6366f1' : n.type === 'end' ? '#ef4444' : '#94a3b8'
+          }
           maskColor="rgba(248,250,252,0.7)"
           style={{ border: '1px solid #e2e8f0', borderRadius: 8 }}
         />

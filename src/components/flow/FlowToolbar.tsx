@@ -13,8 +13,11 @@ import {
 import { TbLayoutGridAdd } from 'react-icons/tb'
 
 // ── Types ──────────────────────────────────────────────────────────────────
+export type SaveStatus = 'idle' | 'saving' | 'saved'
+
 export interface FlowToolbarProps {
   agentName: string
+  saveStatus?: SaveStatus
   canUndo?: boolean
   canRedo?: boolean
   onNewFlow?:      () => void
@@ -67,6 +70,7 @@ const Divider = () => (
 // ── Toolbar ────────────────────────────────────────────────────────────────
 const FlowToolbar = ({
   agentName,
+  saveStatus = 'idle',
   canUndo  = false,
   canRedo  = false,
   onNewFlow,
@@ -95,13 +99,21 @@ const FlowToolbar = ({
         </div>
       </div>
 
-      {/* ── Breadcrumb: Flow editor · Agent name ── */}
+      {/* ── Breadcrumb + save status ── */}
       <div className="flex items-center gap-1.5 pr-4 border-r border-slate-200 shrink-0">
         <span className="text-xs text-slate-400">Flow editor</span>
         <span className="text-slate-300 text-xs">·</span>
-        <span className="text-xs font-semibold text-slate-700 max-w-[140px] truncate">
+        <span className="text-xs font-semibold text-slate-700 max-w-35 truncate">
           {agentName}
         </span>
+
+        {/* Save status pill */}
+        {saveStatus === 'saving' && (
+          <span className="text-[10px] text-slate-400 ml-1">Saving…</span>
+        )}
+        {saveStatus === 'saved' && (
+          <span className="text-[10px] text-emerald-500 font-medium ml-1">✓ Saved</span>
+        )}
       </div>
 
       {/* ── Button group 1: New Flow ── */}
