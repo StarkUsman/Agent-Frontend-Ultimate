@@ -6,6 +6,7 @@ import {
   MdAdd,
 } from 'react-icons/md'
 import FunctionsTab from './inspector/FunctionsTab'
+import ActionsTab   from './inspector/ActionsTab'
 
 // ── Types ──────────────────────────────────────────────────────────────────
 interface InspectorProps {
@@ -278,15 +279,6 @@ const GeneralTab = ({
   )
 }
 
-// ── Placeholder for Functions + Actions tabs ───────────────────────────────
-const EmptyTab = ({ tab }: { tab: Tab }) => (
-  <div className="flex flex-col items-center justify-center gap-2 py-12 px-4 text-center">
-    <p className="text-xs font-semibold text-slate-400">{tab}</p>
-    <p className="text-[10px] text-slate-300">
-      No {tab.toLowerCase()} configured for this node.
-    </p>
-  </div>
-)
 
 // ── No selection state ─────────────────────────────────────────────────────
 const NoSelection = () => (
@@ -323,22 +315,23 @@ const NodeInspector = ({ node }: InspectorProps) => {
 
       {node ? (
         <>
-          {/* Tabs */}
-          <div className="flex border-b border-slate-100 px-1 shrink-0">
-            {TABS.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-3 py-2.5 text-xs font-medium transition-all relative cursor-pointer ${
-                  activeTab === tab ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-600'
-                }`}
-              >
-                {tab}
-                {activeTab === tab && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 rounded-full" />
-                )}
-              </button>
-            ))}
+          {/* Tabs — segmented pill control */}
+          <div className="px-3 py-2.5 border-b border-slate-100 shrink-0">
+            <div className="flex bg-slate-100 rounded-lg p-0.5 gap-0.5">
+              {TABS.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`flex-1 py-1.5 text-[11px] font-medium rounded-md transition-all cursor-pointer ${
+                    activeTab === tab
+                      ? 'bg-white text-slate-900 font-semibold shadow-sm'
+                      : 'text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Tab content */}
@@ -353,7 +346,7 @@ const NodeInspector = ({ node }: InspectorProps) => {
               <FunctionsTab key={node.id} node={node} onUpdate={patch} />
             )}
             {activeTab === 'Actions' && (
-              <EmptyTab tab={activeTab} />
+              <ActionsTab key={node.id} node={node} onUpdate={patch} />
             )}
           </div>
 
