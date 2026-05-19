@@ -20,23 +20,23 @@ const StatCard = ({
   iconColor,
 }: StatCardProps) => {
   return (
-    <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-xl px-4 py-3.5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
 
       {/* Top row: label + icon */}
-      <div className="flex items-start justify-between mb-5">
-        <span className="text-sm text-slate-500 font-medium leading-snug">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs text-slate-500 font-medium">
           {label}
         </span>
         <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+          className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
           style={{ backgroundColor: iconBg }}
         >
-          <Icon className="text-xl" style={{ color: iconColor }} />
+          <Icon className="text-sm" style={{ color: iconColor }} />
         </div>
       </div>
 
       {/* Value */}
-      <p className="text-[2rem] font-bold text-slate-900 leading-none mb-2">
+      <p className="text-2xl font-bold text-slate-900 leading-none mb-1">
         {value}
       </p>
 

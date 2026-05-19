@@ -117,8 +117,8 @@ const CallHistoryPage = () => {
       <main className="flex-1 overflow-y-auto">
 
         {/* Page header */}
-        <div className="px-8 pt-8 pb-6">
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Call history</h1>
+        <div className="px-8 pt-5 pb-4">
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Call history</h1>
           <p className="text-sm text-slate-500 mt-0.5">
             A record of every call handled by your agents.
           </p>

@@ -107,9 +107,9 @@ const AgentsPage = () => {
       <main className="flex-1 overflow-y-auto">
 
         {/* Page header */}
-        <div className="flex items-center justify-between px-8 pt-8 pb-6">
+        <div className="flex items-center justify-between px-8 pt-5 pb-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">My agents</h1>
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight">My agents</h1>
             <p className="text-sm text-slate-500 mt-0.5">
               Manage and configure your voice agents.
             </p>

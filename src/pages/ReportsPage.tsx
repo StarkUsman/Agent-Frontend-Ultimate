@@ -100,14 +100,14 @@ const ReportsPage = () => {
       <main className="flex-1 overflow-y-auto">
 
         {/* ── Page header ── */}
-        <div className="px-8 pt-8 pb-6">
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Reports</h1>
+        <div className="px-8 pt-5 pb-4">
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Reports</h1>
           <p className="text-sm text-slate-500 mt-0.5">
             Performance and usage data from pipecat metrics.
           </p>
         </div>
 
-        <div className="px-8 pb-10 space-y-6">
+        <div className="px-8 pb-6 space-y-5">
 
           {/* ── Section 1: Stat cards ── */}
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">

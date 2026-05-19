@@ -12,10 +12,10 @@ export interface LiveCallRowProps {
 // ── Component ──────────────────────────────────────────────────────────────
 const LiveCallRow = ({ agent, detail, elapsed, turns }: LiveCallRowProps) => {
   return (
-    <div className="flex items-center gap-4 py-4 px-5">
+    <div className="flex items-center gap-4 py-3 px-5">
 
       {/* Phone icon */}
-      <div className="w-9 h-9 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
+      <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
         <MdPhone className="text-emerald-500 text-base" />
       </div>
 

@@ -37,10 +37,10 @@ const AgentCard = ({
   nodes,
 }: AgentCardProps) => {
   return (
-    <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md hover:border-slate-200 transition-all cursor-pointer group">
+    <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm hover:shadow-md hover:border-slate-200 transition-all cursor-pointer group">
 
       {/* Top row: name + status badge */}
-      <div className="flex items-start justify-between gap-3 mb-2">
+      <div className="flex items-start justify-between gap-3 mb-1.5">
         <h3 className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
           {name}
         </h3>
@@ -48,7 +48,7 @@ const AgentCard = ({
       </div>
 
       {/* Description */}
-      <p className="text-xs text-slate-400 leading-relaxed mb-5">
+      <p className="text-xs text-slate-400 leading-relaxed mb-3">
         {description}
       </p>
 

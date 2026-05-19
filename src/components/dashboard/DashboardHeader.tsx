@@ -42,7 +42,7 @@ const DashboardHeader = () => {
   const firstName = user?.name?.split(' ')[0] ?? 'there'
 
   return (
-    <div className="flex items-center justify-between px-8 pt-8 pb-6">
+    <div className="flex items-center justify-between px-8 pt-5 pb-4">
 
       {/* ── Left: Greeting ── */}
       <div>
@@ -54,7 +54,7 @@ const DashboardHeader = () => {
           </div>
         ) : (
           <>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
               {getGreeting()}, {firstName} 👋
             </h1>
             <p className="text-sm text-slate-500 mt-0.5">

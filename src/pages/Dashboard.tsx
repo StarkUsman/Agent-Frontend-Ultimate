@@ -28,7 +28,7 @@ const Dashboard = () => {
         <DashboardHeader />
 
         {/* Steps 3–7 will stack here inside this padding wrapper */}
-        <div className="px-8 pb-8 space-y-8">
+        <div className="px-8 pb-3 space-y-4">
 
           {/* Step 3 ✓ */}
           <StatsRow />
