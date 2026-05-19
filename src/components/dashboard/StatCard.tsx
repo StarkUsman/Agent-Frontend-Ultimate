@@ -3,7 +3,7 @@ export interface StatCardProps {
   label: string
   value: string
   sub: string
-  subType: 'positive' | 'neutral'
+  subType: 'positive' | 'neutral' | 'indigo'
   icon: React.ElementType
   iconBg: string
   iconColor: string
@@ -43,7 +43,9 @@ const StatCard = ({
       {/* Sub text */}
       <p
         className={`text-xs font-medium ${
-          subType === 'positive' ? 'text-emerald-500' : 'text-slate-400'
+          subType === 'positive' ? 'text-emerald-500'
+          : subType === 'indigo'   ? 'text-indigo-500'
+          : 'text-slate-400'
         }`}
       >
         {sub}
