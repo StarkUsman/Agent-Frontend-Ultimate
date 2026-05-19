@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import { useReactFlow, type Node } from '@xyflow/react'
-import { MdOutlineDeleteOutline, MdKeyboardArrowDown } from 'react-icons/md'
+import {
+  MdOutlineDeleteOutline,
+  MdKeyboardArrowDown,
+  MdAdd,
+} from 'react-icons/md'
+import FunctionsTab from './inspector/FunctionsTab'
 
 // ── Types ──────────────────────────────────────────────────────────────────
 interface InspectorProps {
@@ -10,21 +15,24 @@ interface InspectorProps {
 type Tab = 'General' | 'Messages' | 'Functions' | 'Actions'
 const TABS: Tab[] = ['General', 'Messages', 'Functions', 'Actions']
 
+export interface Msg {
+  role: string
+  content: string
+}
+
+const ROLE_OPTIONS = ['system', 'developer', 'user', 'assistant']
+
 const CONTEXT_STRATEGIES = [
   { value: 'APPEND',  label: 'APPEND (default)' },
   { value: 'PREPEND', label: 'PREPEND' },
   { value: 'RESET',   label: 'RESET' },
 ]
 
-// ── Reusable form field wrapper ────────────────────────────────────────────
+// ── Shared form field wrapper ──────────────────────────────────────────────
 const Field = ({
-  label,
-  hint,
-  children,
+  label, hint, children,
 }: {
-  label: string
-  hint?: string
-  children: React.ReactNode
+  label: string; hint?: string; children: React.ReactNode
 }) => (
   <div className="space-y-1.5">
     <label className="block text-xs font-semibold text-slate-600">{label}</label>
@@ -33,9 +41,149 @@ const Field = ({
   </div>
 )
 
-// ── General tab — fields differ slightly by node type ──────────────────────
-// key={node.id} on this component forces a full remount when a new
-// node is selected, which resets all local form state automatically.
+// ── Single message card ────────────────────────────────────────────────────
+const MessageCard = ({
+  msg,
+  onChange,
+  onDelete,
+}: {
+  msg: Msg
+  onChange: (updated: Msg) => void
+  onDelete: () => void
+}) => (
+  <div className="border border-slate-200 rounded-xl p-3 space-y-2.5 bg-white">
+
+    {/* Top row: role dropdown + delete */}
+    <div className="flex items-center justify-between">
+      <div className="relative">
+        <select
+          value={msg.role}
+          onChange={(e) => onChange({ ...msg, role: e.target.value })}
+          className="appearance-none text-xs font-medium text-slate-700 border border-slate-200 rounded-lg pl-2.5 pr-6 py-1.5 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-300 cursor-pointer"
+        >
+          {ROLE_OPTIONS.map((r) => (
+            <option key={r} value={r}>
+              {r.charAt(0).toUpperCase() + r.slice(1)}
+            </option>
+          ))}
+        </select>
+        <MdKeyboardArrowDown className="absolute right-1.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-sm" />
+      </div>
+
+      <button
+        onClick={onDelete}
+        className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+        title="Delete message"
+      >
+        <MdOutlineDeleteOutline className="text-base" />
+      </button>
+    </div>
+
+    {/* Content textarea */}
+    <textarea
+      value={msg.content}
+      onChange={(e) => onChange({ ...msg, content: e.target.value })}
+      rows={3}
+      placeholder="Enter message content..."
+      className="w-full text-xs text-slate-600 border border-slate-200 rounded-lg px-3 py-2 resize-y leading-relaxed focus:outline-none focus:ring-1 focus:ring-indigo-300 focus:border-indigo-400 placeholder-slate-300 transition-all"
+    />
+  </div>
+)
+
+// ── Messages section (Role Messages or Task Messages) ──────────────────────
+const MessageSection = ({
+  title,
+  messages,
+  onChange,
+}: {
+  title: string
+  messages: Msg[]
+  onChange: (msgs: Msg[]) => void
+}) => {
+  const add    = () => onChange([...messages, { role: 'system', content: '' }])
+  const update = (i: number, updated: Msg) => {
+    const next = [...messages]; next[i] = updated; onChange(next)
+  }
+  const remove = (i: number) => onChange(messages.filter((_, idx) => idx !== i))
+
+  return (
+    <div className="space-y-3">
+      {/* Section header */}
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold text-slate-600">{title}</p>
+        <button
+          onClick={add}
+          className="flex items-center gap-0.5 text-xs text-indigo-600 hover:text-indigo-700 font-medium cursor-pointer"
+        >
+          <MdAdd className="text-sm" />
+          Add
+        </button>
+      </div>
+
+      {/* Message cards */}
+      {messages.length === 0 ? (
+        <p className="text-[10px] text-slate-300 italic px-1">
+          No messages yet — click + Add to create one.
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {messages.map((msg, i) => (
+            <MessageCard
+              key={i}
+              msg={msg}
+              onChange={(updated) => update(i, updated)}
+              onDelete={() => remove(i)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Messages tab ───────────────────────────────────────────────────────────
+// key={node.id} on this component resets local state when a new node is selected
+const MessagesTab = ({
+  node,
+  onUpdate,
+}: {
+  node: Node
+  onUpdate: (patch: Record<string, unknown>) => void
+}) => {
+  const [roleMessages, setRoleMessages] = useState<Msg[]>(
+    (node.data?.role_messages as Msg[]) ?? []
+  )
+  const [taskMessages, setTaskMessages] = useState<Msg[]>(
+    (node.data?.task_messages as Msg[]) ?? []
+  )
+
+  const handleRoleChange = (msgs: Msg[]) => {
+    setRoleMessages(msgs)
+    onUpdate({ role_messages: msgs })
+  }
+  const handleTaskChange = (msgs: Msg[]) => {
+    setTaskMessages(msgs)
+    onUpdate({ task_messages: msgs })
+  }
+
+  return (
+    <div className="p-4 space-y-6">
+      <MessageSection
+        title="Role Messages"
+        messages={roleMessages}
+        onChange={handleRoleChange}
+      />
+      <div className="h-px bg-slate-100" />
+      <MessageSection
+        title="Task Messages"
+        messages={taskMessages}
+        onChange={handleTaskChange}
+      />
+    </div>
+  )
+}
+
+// ── General tab ────────────────────────────────────────────────────────────
 const GeneralTab = ({
   node,
   onUpdate,
@@ -43,15 +191,13 @@ const GeneralTab = ({
   node: Node
   onUpdate: (patch: Record<string, unknown>) => void
 }) => {
-  const label             = (node.data?.label            as string)  ?? ''
-  const instructions      = (node.data?.instructions     as string)  ?? ''
-  const respondImmediately= (node.data?.respondImmediately as boolean) ?? true
-  const contextStrategy   = (node.data?.contextStrategy  as string)  ?? 'APPEND'
+  const label              = (node.data?.label             as string)  ?? ''
+  const instructions       = (node.data?.instructions      as string)  ?? ''
+  const respondImmediately = (node.data?.respondImmediately as boolean) ?? true
+  const contextStrategy    = (node.data?.contextStrategy   as string)  ?? 'APPEND'
 
   return (
     <div className="space-y-5 p-4">
-
-      {/* Label */}
       <Field label="Label">
         <input
           defaultValue={label}
@@ -62,33 +208,25 @@ const GeneralTab = ({
         />
       </Field>
 
-      {/* Type — read-only */}
       <Field label="Type">
         <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-100 text-xs font-mono text-slate-600">
           {node.type}
         </span>
       </Field>
 
-      {/* Instructions — StepNode only */}
       {node.type === 'step' && (
-        <Field
-          label="Instructions"
-          hint="Tell the AI what to say or do at this step."
-        >
+        <Field label="Instructions" hint="Tell the AI what to say or do at this step.">
           <textarea
             defaultValue={instructions}
             rows={4}
             onBlur={(e)    => onUpdate({ instructions: e.target.value })}
-            onKeyDown={(e) => {
-              if (e.key === 'Escape') (e.target as HTMLTextAreaElement).blur()
-            }}
+            onKeyDown={(e) => { if (e.key === 'Escape') (e.target as HTMLTextAreaElement).blur() }}
             className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg text-slate-700 resize-none focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 transition-all"
             placeholder="e.g. Greet the caller and ask how you can help them today."
           />
         </Field>
       )}
 
-      {/* Respond Immediately — Initial + Step only */}
       {node.type !== 'end' && (
         <div className="flex items-start gap-3">
           <input
@@ -99,10 +237,7 @@ const GeneralTab = ({
             className="mt-0.5 w-4 h-4 accent-indigo-600 cursor-pointer"
           />
           <div>
-            <label
-              htmlFor={`ri-${node.id}`}
-              className="text-sm font-medium text-slate-700 cursor-pointer"
-            >
+            <label htmlFor={`ri-${node.id}`} className="text-sm font-medium text-slate-700 cursor-pointer">
               Respond Immediately
             </label>
             <p className="text-[10px] text-slate-400 mt-0.5">
@@ -112,15 +247,12 @@ const GeneralTab = ({
         </div>
       )}
 
-      {/* Context Strategy — Initial + Step only */}
       {node.type !== 'end' && (
         <Field
           label="Context Strategy"
-          hint={
-            contextStrategy === 'APPEND'
-              ? 'APPEND is the default strategy. Remove this configuration to use the default.'
-              : undefined
-          }
+          hint={contextStrategy === 'APPEND'
+            ? 'APPEND is the default. Remove this configuration to use the default.'
+            : undefined}
         >
           <div className="relative">
             <select
@@ -137,20 +269,18 @@ const GeneralTab = ({
         </Field>
       )}
 
-      {/* Data (JSON) preview */}
       <Field label="Data (JSON)">
         <pre className="w-full px-3 py-2 text-[10px] font-mono text-slate-500 bg-slate-50 border border-slate-100 rounded-lg overflow-x-auto leading-relaxed">
           {JSON.stringify(node.data, null, 2)}
         </pre>
       </Field>
-
     </div>
   )
 }
 
-// ── Placeholder for future tabs ────────────────────────────────────────────
+// ── Placeholder for Functions + Actions tabs ───────────────────────────────
 const EmptyTab = ({ tab }: { tab: Tab }) => (
-  <div className="flex-1 flex flex-col items-center justify-center gap-2 py-12 px-4 text-center">
+  <div className="flex flex-col items-center justify-center gap-2 py-12 px-4 text-center">
     <p className="text-xs font-semibold text-slate-400">{tab}</p>
     <p className="text-[10px] text-slate-300">
       No {tab.toLowerCase()} configured for this node.
@@ -177,10 +307,14 @@ const NodeInspector = ({ node }: InspectorProps) => {
     deleteElements({ nodes: [{ id: node.id }] })
   }
 
-  return (
-    <aside className="w-72 bg-white border-l border-slate-200 flex flex-col shrink-0 overflow-hidden">
+  const patch = (data: Record<string, unknown>) => {
+    if (node) updateNodeData(node.id, data)
+  }
 
-      {/* ── Header ── */}
+  return (
+    <aside className="w-96 bg-white border-l border-slate-200 flex flex-col shrink-0 overflow-hidden">
+
+      {/* Header */}
       <div className="px-4 py-3 border-b border-slate-100 shrink-0">
         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
           Inspector{node ? `: ${node.type}` : ''}
@@ -189,18 +323,15 @@ const NodeInspector = ({ node }: InspectorProps) => {
 
       {node ? (
         <>
-          {/* ── Tabs ── */}
+          {/* Tabs */}
           <div className="flex border-b border-slate-100 px-1 shrink-0">
             {TABS.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`
-                  px-3 py-2.5 text-xs font-medium transition-all relative cursor-pointer
-                  ${activeTab === tab
-                    ? 'text-indigo-600'
-                    : 'text-slate-400 hover:text-slate-600'}
-                `}
+                className={`px-3 py-2.5 text-xs font-medium transition-all relative cursor-pointer ${
+                  activeTab === tab ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-600'
+                }`}
               >
                 {tab}
                 {activeTab === tab && (
@@ -210,21 +341,23 @@ const NodeInspector = ({ node }: InspectorProps) => {
             ))}
           </div>
 
-          {/* ── Tab content (scrollable) ── */}
+          {/* Tab content */}
           <div className="flex-1 overflow-y-auto">
-            {activeTab === 'General' ? (
-              // key={node.id} resets all form state when a different node is selected
-              <GeneralTab
-                key={node.id}
-                node={node}
-                onUpdate={(patch) => updateNodeData(node.id, patch)}
-              />
-            ) : (
+            {activeTab === 'General' && (
+              <GeneralTab key={node.id} node={node} onUpdate={patch} />
+            )}
+            {activeTab === 'Messages' && (
+              <MessagesTab key={node.id} node={node} onUpdate={patch} />
+            )}
+            {activeTab === 'Functions' && (
+              <FunctionsTab key={node.id} node={node} onUpdate={patch} />
+            )}
+            {activeTab === 'Actions' && (
               <EmptyTab tab={activeTab} />
             )}
           </div>
 
-          {/* ── Delete button ── */}
+          {/* Delete button */}
           <div className="px-4 py-3 border-t border-slate-100 shrink-0">
             <button
               onClick={handleDelete}
