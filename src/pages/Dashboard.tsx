@@ -4,6 +4,7 @@ import Sidebar from '../components/dashboard/Sidebar'
 import DashboardHeader from '../components/dashboard/DashboardHeader'
 import StatsRow from '../components/dashboard/StatsRow'
 import LiveCallsSection from '../components/dashboard/LiveCallsSection'
+import AgentsGrid from '../components/dashboard/AgentsGrid'
 
 const Dashboard = () => {
   const navigate = useNavigate()
@@ -35,12 +36,8 @@ const Dashboard = () => {
           {/* Step 4 ✓ */}
           <LiveCallsSection />
 
-          {/* Placeholder — Step 5 replaces this with Agents grid */}
-          <div className="flex items-center justify-center h-40 border-2 border-dashed border-slate-200 rounded-2xl">
-            <p className="text-slate-300 text-sm font-medium">
-              Step 5 → Agents grid coming next
-            </p>
-          </div>
+          {/* Step 5 ✓ */}
+          <AgentsGrid />
 
         </div>
       </main>
