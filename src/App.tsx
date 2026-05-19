@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard'
 import AgentsPage from './pages/AgentsPage'
 import CallHistoryPage from './pages/CallHistoryPage'
 import ReportsPage from './pages/ReportsPage'
+import FlowEditorPage from './pages/FlowEditorPage'
 
 const App = () => {
   return (
@@ -14,6 +15,7 @@ const App = () => {
         <Route path="/agents" element={<AgentsPage />} />
         <Route path="/calls" element={<CallHistoryPage />} />
         <Route path="/reports" element={<ReportsPage />} />
+        <Route path="/agents/:id/flow" element={<FlowEditorPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

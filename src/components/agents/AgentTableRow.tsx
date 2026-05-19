@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import { TbGitFork } from 'react-icons/tb'
 import { MdOutlineWarningAmber } from 'react-icons/md'
 
@@ -27,17 +28,29 @@ const VoiceCell = ({ initial, name, color }: AgentRowData['voice']) => (
   </div>
 )
 
-const FlowCell = ({ flow }: { flow: AgentRowData['flow'] }) => {
+const FlowCell = ({ id, flow }: { id: number; flow: AgentRowData['flow'] }) => {
+  const navigate = useNavigate()
+  const goToEditor = () => navigate(`/agents/${id}/flow`)
+
   if (flow) {
     return (
       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-600 text-xs font-medium whitespace-nowrap">
         <TbGitFork className="text-sm" />
-        {flow.nodes} nodes · <span className="underline cursor-pointer">edit</span>
+        {flow.nodes} nodes ·{' '}
+        <span
+          className="underline cursor-pointer hover:text-indigo-800"
+          onClick={goToEditor}
+        >
+          edit
+        </span>
       </span>
     )
   }
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-600 text-xs font-medium whitespace-nowrap">
+    <span
+      onClick={goToEditor}
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-600 text-xs font-medium whitespace-nowrap cursor-pointer hover:bg-amber-100 transition-colors"
+    >
       <MdOutlineWarningAmber className="text-sm" />
       No flow — add one
     </span>
@@ -61,6 +74,7 @@ const StatusBadge = ({ status }: { status: AgentRowData['status'] }) => {
 
 // ── Row component ──────────────────────────────────────────────────────────
 const AgentTableRow = ({
+  id,
   name,
   description,
   voice,
@@ -109,7 +123,7 @@ const AgentTableRow = ({
 
       {/* Conversation flow */}
       <td className="py-4 px-4">
-        <FlowCell flow={flow} />
+        <FlowCell id={id} flow={flow} />
       </td>
 
       {/* Status */}
