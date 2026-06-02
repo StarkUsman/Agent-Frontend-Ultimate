@@ -161,6 +161,14 @@ const FlowEditorInner = ({ agentId, agentName, savedFlow }: InnerProps) => {
     showToast('Example flow loaded')
   }, [setNodes, setEdges, showToast])
 
+  const handleDeploy = useCallback(() => {
+    const py      = flowToPython(getNodes(), getEdges(), agentName)
+    const payload = { agent_name: agentName, script: py }
+    console.log('[Deploy] button pressed')
+    console.log('[Deploy] payload:', payload)
+    showToast('Deploy triggered — check console')
+  }, [getNodes, getEdges, agentName, showToast])
+
   return (
     <div className="h-screen flex flex-col overflow-hidden">
 
@@ -176,6 +184,7 @@ const FlowEditorInner = ({ agentId, agentName, savedFlow }: InnerProps) => {
         onExport={handleExport}
         onExportPython={handleExportPython}
         onLoadExample={handleLoadExample}
+        onDeploy={handleDeploy}
       />
 
       <div className="flex flex-1 overflow-hidden">

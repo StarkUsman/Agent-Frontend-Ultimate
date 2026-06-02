@@ -12,6 +12,7 @@ import {
   MdOutlineMoreHoriz,
   MdCode,
   MdKeyboardArrowDown,
+  MdRocketLaunch,
 } from 'react-icons/md'
 import { TbLayoutGridAdd } from 'react-icons/tb'
 
@@ -30,6 +31,7 @@ export interface FlowToolbarProps {
   onExport?:        () => void
   onExportPython?:  () => void
   onLoadExample?:   () => void
+  onDeploy?:        () => void
 }
 
 // ── Small reusable toolbar button ──────────────────────────────────────────
@@ -147,6 +149,7 @@ const FlowToolbar = ({
   onExport,
   onExportPython,
   onLoadExample,
+  onDeploy,
 }: FlowToolbarProps) => {
   const navigate = useNavigate()
 
@@ -229,14 +232,19 @@ const FlowToolbar = ({
       {/* ── Spacer ── */}
       <div className="flex-1" />
 
-      {/* ── Right: Preview + Back ── */}
-      {/* <ToolbarBtn icon={MdOutlinePlayCircle} label="Preview" /> */}
+      {/* ── Right: Deploy + Back ── */}
+      <ToolbarBtn
+        icon={MdRocketLaunch}
+        label="Deploy"
+        variant="primary"
+        onClick={onDeploy}
+      />
 
       <Divider />
 
       <button
         onClick={() => navigate('/agents')}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors cursor-pointer"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95 transition-all cursor-pointer select-none"
       >
         <MdArrowBack className="text-base" />
         Agents
