@@ -11,6 +11,7 @@ import NodePalette   from '../components/flow/NodePalette'
 import FlowCanvas    from '../components/flow/FlowCanvas'
 import NodeInspector from '../components/flow/NodeInspector'
 import { AGENTS } from '../data/agents'
+import { flowToPython } from '../utils/flowToPython'
 
 // ── localStorage key per agent ─────────────────────────────────────────────
 const storageKey = (agentId: string) => `pipcat-flow-agent-${agentId}`
@@ -112,6 +113,25 @@ const FlowEditorInner = ({ agentId, agentName, savedFlow }: InnerProps) => {
     showToast('Flow exported')
   }, [getNodes, getEdges, agentName, showToast])
 
+  const handleExportPython = useCallback(() => {
+    try {
+      const py       = flowToPython(getNodes(), getEdges(), agentName)
+      const blob     = new Blob([py], { type: 'text/plain' })
+      const url      = URL.createObjectURL(blob)
+      const a        = document.createElement('a')
+      a.href         = url
+      a.download     = `${agentName.replace(/\s+/g, '-').toLowerCase()}-flow.py`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+      showToast('Flow exported as Python')
+    } catch (err) {
+      console.error('Python export failed:', err)
+      showToast('Export failed — check the console for details')
+    }
+  }, [getNodes, getEdges, agentName, showToast])
+
   const handleImport = useCallback(() => {
     const input    = document.createElement('input')
     input.type     = 'file'
@@ -154,6 +174,7 @@ const FlowEditorInner = ({ agentId, agentName, savedFlow }: InnerProps) => {
         onRedo={() => {}}
         onImport={handleImport}
         onExport={handleExport}
+        onExportPython={handleExportPython}
         onLoadExample={handleLoadExample}
       />
 
