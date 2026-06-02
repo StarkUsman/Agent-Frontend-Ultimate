@@ -54,7 +54,7 @@ const StepNode = ({ id, data, selected }: NodeProps) => {
   return (
     <div
       className={`
-        min-w-44 bg-white rounded-xl border-2 shadow-sm transition-all
+        min-w-36 bg-white rounded-lg border-2 shadow-sm transition-all
         ${selected
           ? 'border-indigo-500 shadow-indigo-100 shadow-md'
           : 'border-slate-200 hover:border-indigo-300 hover:shadow-md'}
@@ -64,9 +64,9 @@ const StepNode = ({ id, data, selected }: NodeProps) => {
       <Handle type="target" position={Position.Top} style={handleStyle} />
 
       {/* ── Header: icon + editable label ── */}
-      <div className="flex items-center gap-2 px-4 pt-3 pb-2 border-b border-slate-100">
-        <div className="w-6 h-6 rounded-md bg-slate-100 flex items-center justify-center shrink-0">
-          <MdOutlineCircle className="text-slate-500 text-sm" />
+      <div className="flex items-center gap-1.5 px-3 pt-2 pb-1.5 border-b border-slate-100">
+        <div className="w-5 h-5 rounded-md bg-slate-100 flex items-center justify-center shrink-0">
+          <MdOutlineCircle className="text-slate-500 text-xs" />
         </div>
 
         {isEditingLabel ? (
@@ -75,14 +75,14 @@ const StepNode = ({ id, data, selected }: NodeProps) => {
             onChange={setLabelDraft}
             onCommit={commitLabel}
             onCancel={cancelLabel}
-            className="text-sm font-semibold text-slate-800"
+            className="text-xs font-semibold text-slate-800"
             placeholder="Step name..."
           />
         ) : (
           <span
             onDoubleClick={startLabelEdit}
             title="Double-click to rename"
-            className="text-sm font-semibold text-slate-800 cursor-text select-none"
+            className="text-xs font-semibold text-slate-800 cursor-text select-none"
           >
             {(data?.label as string) ?? 'Node'}
           </span>
@@ -91,7 +91,7 @@ const StepNode = ({ id, data, selected }: NodeProps) => {
 
       {/* ── Body: editable instructions ── */}
       <div
-        className="px-4 py-2.5 cursor-text"
+        className="px-3 py-2 cursor-text"
         onDoubleClick={() => !isEditingInstr && startInstrEdit()}
       >
         {isEditingInstr ? (
@@ -103,28 +103,27 @@ const StepNode = ({ id, data, selected }: NodeProps) => {
             onBlur={commitInstr}
             onKeyDown={(e) => {
               if (e.key === 'Escape') { e.preventDefault(); cancelInstr() }
-              // Shift+Enter adds newline; plain Enter commits
               if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); commitInstr() }
             }}
-            placeholder="Enter instructions... (Enter to save, Shift+Enter for newline)"
-            rows={3}
-            className="w-full text-[11px] text-slate-600 leading-relaxed resize-none bg-transparent border-none outline-none placeholder-slate-300"
+            placeholder="Enter instructions..."
+            rows={2}
+            className="w-full text-[10px] text-slate-600 leading-relaxed resize-none bg-transparent border-none outline-none placeholder-slate-300"
           />
         ) : instructions ? (
           <p
-            className="text-[11px] text-slate-500 leading-relaxed line-clamp-3"
+            className="text-[10px] text-slate-500 leading-relaxed line-clamp-2"
             title="Double-click to edit"
           >
             {instructions}
           </p>
         ) : (
-          <p className="text-[11px] text-slate-300 italic" title="Double-click to add instructions">
-            Double-click to add instructions...
+          <p className="text-[10px] text-slate-300 italic" title="Double-click to add instructions">
+            Double-click to add...
           </p>
         )}
       </div>
 
-      <p className="text-[10px] text-slate-400 px-4 pb-2.5">node</p>
+      <p className="text-[9px] text-slate-400 px-3 pb-2">node</p>
 
       {/* Out-handle — flow exits here */}
       <Handle type="source" position={Position.Bottom} style={handleStyle} />

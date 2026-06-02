@@ -4,8 +4,8 @@ import { MdPlayArrow } from 'react-icons/md'
 
 // ── Shared handle style — imported by StepNode and EndNode too ─────────────
 export const handleStyle: React.CSSProperties = {
-  width: 10,
-  height: 10,
+  width: 6,
+  height: 6,
   borderRadius: '50%',
   background: '#ffffff',
   border: '2px solid #94a3b8',
@@ -73,16 +73,16 @@ const InitialNode = ({ id, data, selected }: NodeProps) => {
   return (
     <div
       className={`
-        min-w-40 bg-white rounded-xl px-4 py-3
+        min-w-25 bg-white rounded px-2 py-1
         border-2 shadow-sm transition-all
         ${selected
           ? 'border-indigo-500 shadow-indigo-100 shadow-md'
           : 'border-slate-200 hover:border-indigo-300 hover:shadow-md'}
       `}
     >
-      <div className="flex items-center gap-2">
-        <div className="w-6 h-6 rounded-md bg-indigo-100 flex items-center justify-center shrink-0">
-          <MdPlayArrow className="text-indigo-600 text-sm" />
+      <div className="flex items-center gap-1.5">
+        <div className="w-5 h-5 rounded-md bg-indigo-100 flex items-center justify-center shrink-0">
+          <MdPlayArrow className="text-indigo-600 text-xs" />
         </div>
 
         {isEditing ? (
@@ -91,21 +91,21 @@ const InitialNode = ({ id, data, selected }: NodeProps) => {
             onChange={setDraft}
             onCommit={commit}
             onCancel={cancel}
-            className="text-sm font-semibold text-slate-800"
+            className="text-xs font-semibold text-slate-800"
             placeholder="Node label..."
           />
         ) : (
           <span
             onDoubleClick={startEdit}
             title="Double-click to rename"
-            className="text-sm font-semibold text-slate-800 cursor-text select-none"
+            className="text-xs font-semibold text-slate-800 cursor-text select-none"
           >
             {(data?.label as string) ?? 'Initial'}
           </span>
         )}
       </div>
 
-      <p className="text-[10px] text-slate-400 mt-1 ml-8">initial</p>
+      <p className="text-[8px] text-slate-400 mt-0.25 ml-6">initial</p>
 
       {/* No target handle — nothing flows INTO the start node */}
       <Handle type="source" position={Position.Bottom} style={handleStyle} />

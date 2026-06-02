@@ -30,7 +30,7 @@ const EndNode = ({ id, data, selected }: NodeProps) => {
   return (
     <div
       className={`
-        min-w-40 bg-white rounded-xl px-4 py-3
+        min-w-32 bg-white rounded-lg px-3 py-2
         border-2 shadow-sm transition-all
         ${selected
           ? 'border-red-400 shadow-red-100 shadow-md'
@@ -40,9 +40,9 @@ const EndNode = ({ id, data, selected }: NodeProps) => {
       {/* In-handle — flow arrives here */}
       <Handle type="target" position={Position.Top} style={handleStyle} />
 
-      <div className="flex items-center gap-2">
-        <div className="w-6 h-6 rounded-md bg-red-50 flex items-center justify-center shrink-0">
-          <MdOutlineStopCircle className="text-red-500 text-sm" />
+      <div className="flex items-center gap-1.5">
+        <div className="w-5 h-5 rounded-md bg-red-50 flex items-center justify-center shrink-0">
+          <MdOutlineStopCircle className="text-red-500 text-xs" />
         </div>
 
         {isEditing ? (
@@ -51,21 +51,21 @@ const EndNode = ({ id, data, selected }: NodeProps) => {
             onChange={setDraft}
             onCommit={commit}
             onCancel={cancel}
-            className="text-sm font-semibold text-slate-800"
+            className="text-xs font-semibold text-slate-800"
             placeholder="Node label..."
           />
         ) : (
           <span
             onDoubleClick={startEdit}
             title="Double-click to rename"
-            className="text-sm font-semibold text-slate-800 cursor-text select-none"
+            className="text-xs font-semibold text-slate-800 cursor-text select-none"
           >
             {(data?.label as string) ?? 'End'}
           </span>
         )}
       </div>
 
-      <p className="text-[10px] text-slate-400 mt-1 ml-8">end</p>
+      <p className="text-[9px] text-slate-400 mt-0.5 ml-6.5">end</p>
 
       {/* No source handle — nothing flows OUT of the end node */}
     </div>
